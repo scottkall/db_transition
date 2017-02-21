@@ -2,18 +2,22 @@ library(readxl)
 # library(xlsx)
 library(stringr)
 
+# move to PRIMA folder
+setwd(file.path(baseDir,"XLS_cleaned"))
+
 # set relevant global variables
 TABLE_NAME = "inventory"
 
 # read in metadata
-TODO: find metadata for inventory sheet -- in 
+
+# TODO: find metadata for inventory sheet -- in 
 # NOTE: working on 'Banked' tab in PDX_Inventory_011717.xlsx and assuming Header_Data is same format as conversion_guide.xls
 
-prima.filename <- dir(".",pattern = glob2rx("PRIMAGRAFTS*xlsx"))
-if(length(prima.filename) != 1) stop("too few or too many PRIMAGRAFTS sheets in dropbox")
-meta <- read_excel(paste0("./",prima.filename),sheet="Header_Data")
+inv.filename <- dir(".",pattern = glob2rx("PDX_Inventory_*xlsx"))
+if(length(inv.filename) != 1) stop("too few or too many Inventory sheets in dropbox")
+meta <- read_excel(paste0("./",inv.filename),sheet="Header_Data")
 
-df <- read_excel(paste0("./",prima.filename),sheet="Injected",
+df <- read_excel(paste0("./",inv.filename),sheet="Banked",
   col_types =rep("text",nrow(meta)))
 
 # convert column in 'meta' to specify type as "blank", "numeric", "date" or "text" for read_excel()
@@ -26,7 +30,7 @@ meta$read_excel_type[meta$read_excel_type %in% c("logical","numeric")] <- "numer
 
 # read in data, returning difference with meta if error.
 # try(expr={ # TODO: implement try-else-print-debugging
-df <- read_excel(paste0("./",prima.filename),sheet="Injected",
+df <- read_excel(paste0("./",inv.filename),sheet="Banked",
   col_types =rep("text",nrow(meta))) # meta$read_excel_type)
 # })
 df <- as.data.frame(df) # added because the default class of read_excel output is ‘tbl_df’, ‘tbl’ and 'data.frame' which is incompatible with FUN of convert.magic() 8/2016
@@ -45,12 +49,7 @@ df[,which(meta$read_excel_type == "numeric")] <- as.data.frame(lapply(df[,which(
 ########## subset conversion guide for only new table. #########
 
 # filter 'convert' for just the rows relevant to the new table
-convert_subset <- convert[convert$NewTable==TABLE_NAME,]
-
-if(!any(colnames(df) %in% c("MRN","Sample_ID"))){
-  warning("Conditionally dropped MRN and Sample_ID from conversion because did not exist in PRIMAGRAFTS.")
-  convert_subset <- convert_subset[!(convert_subset$OrigColumn %in% c("MRN","Sample_ID")),]
-}
+convert_subset <- meta[meta$NewTable==TABLE_NAME,]
 
 # warning("TEMPORARY: added subset_index row to convert_subset")
 # convert_subset <- rbind(convert_subset, list(NA,NA,NA,NA,"subset","subset_index","INT",NA,0,0,1,0,NA,NA,NA))
@@ -58,34 +57,19 @@ if(!any(colnames(df) %in% c("MRN","Sample_ID"))){
 
 ########## create draft df from subsetting columns #####
 
-cols_to_keep <- c(convert_subset$OrigColumn,"Derivative")  # specifically included Derivative for below
+cols_to_keep <- c(convert_subset$OrigColumn)  # specifically included Derivative for below
 stopifnot(all(cols_to_keep %in% colnames(df)))
 df_subset <- df[,cols_to_keep]
 
 
 ############# Clean up, subset df as necessary to produce subset ################
 
-# manual fix for typo
-if(df[df$PDX_Name == "DFBL-20954-V1",]$Germline_Available!=1){
-  warning("typo in prima, so manually ran turned DFBL-20954-V1 Germline_Available to 1")
-  df[df$PDX_Name == "DFBL-20954-V1",]$Germline_Available <- 1
-}
-
-## create unique 10-digit code per PDX
-df_subset$pdx_id <- stringr::str_sub(df$PDX_Name,1,10)
+warning("TODO: Clean up inv date into year-month-day format for SQL")
+TODO: clean up date into year-month-day format a la 
+https://dev.mysql.com/doc/refman/5.7/en/date-and-time-types.html
 
 # View(df[df$pdx_id %in% unique(df$pdx_id[duplicated(df$pdx_id)]),]) # view duplicates
 # View(df_subset[df_subset$pdx_id %in% unique(df_subset$pdx_id[duplicated(df_subset$pdx_id)]),])
-
-# drop PDX_Name
-df_subset$PDX_Name <- NULL
-
-# collapse duplicates -- method: remove 'Derivative' lines, then remove that column
-stopifnot(length(which(df_subset$Derivative == 1)) == length(unique(df_subset$pdx_id[duplicated(df_subset$pdx_id)]))) # confirm assumption
-df_subset <- df_subset[-which(df_subset$Derivative == 1),]
-  # df_subset$pdx_id[which(is.na(df_subset$Derivative))] # show which lines are NA for Derivative -- why? I messaged Mark.
-# remove 'derivative' column
-df_subset$Derivative <- NULL
 
 # convert colnames from OrigColumn to NewColName
   # colnames(df_subset)

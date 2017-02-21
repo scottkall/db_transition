@@ -2,6 +2,9 @@ library(readxl)
 # library(xlsx)
 library(stringr)
 
+# move to PRIMA folder
+setwd(file.path(baseDir,"XLS_cleaned"))
+
 # set relevant global variables
 TABLE_NAME = "clinical"
 
@@ -42,7 +45,7 @@ df[,which(meta$read_excel_type == "numeric")] <- as.data.frame(lapply(df[,which(
 ########## subset conversion guide for only new table. #########
 
 # filter 'convert' for just the rows relevant to the new table
-convert_subset <- convert[convert$NewTable==TABLE_NAME,]
+convert_subset <- meta[meta$NewTable==TABLE_NAME | meta$NewColName=="pdx_id",]
 
 if(!any(colnames(df) %in% c("MRN","Sample_ID"))){
   warning("Conditionally dropped MRN and Sample_ID from conversion because did not exist in PRIMAGRAFTS.")
@@ -62,12 +65,6 @@ df_subset <- df[,cols_to_keep]
 
 ############# Clean up, subset df as necessary to produce subset ################
 
-# manual fix for typo
-if(df[df$PDX_Name == "DFBL-20954-V1",]$Germline_Available!=1){
-  warning("typo in prima, so manually ran turned DFBL-20954-V1 Germline_Available to 1")
-  df[df$PDX_Name == "DFBL-20954-V1",]$Germline_Available <- 1
-}
-
 ## create unique 10-digit code per PDX
 df_subset$pdx_id <- stringr::str_sub(df$PDX_Name,1,10)
 
@@ -77,9 +74,11 @@ df_subset$pdx_id <- stringr::str_sub(df$PDX_Name,1,10)
 # drop PDX_Name
 df_subset$PDX_Name <- NULL
 
-# collapse duplicates -- method: remove 'Derivative' lines, then remove that column
-stopifnot(length(which(df_subset$Derivative == 1)) == length(unique(df_subset$pdx_id[duplicated(df_subset$pdx_id)]))) # confirm assumption
-df_subset <- df_subset[-which(df_subset$Derivative == 1),]
+# collapse duplicates -- method: remove original of 'Derivative' lines, then remove that column
+duplicated_ids <- unique(df_subset$pdx_id[duplicated(df_subset$pdx_id)])
+stopifnot(length(which(df_subset$Derivative == 1)) == length(duplicated_ids)) # confirm assumption
+duplicates_to_remove <- which(df_subset$pdx_id %in% duplicated_ids & df_subset$Derivative != 1)
+df_subset <- df_subset[-duplicates_to_remove,]
   # df_subset$pdx_id[which(is.na(df_subset$Derivative))] # show which lines are NA for Derivative -- why? I messaged Mark.
 # remove 'derivative' column
 df_subset$Derivative <- NULL
@@ -97,7 +96,7 @@ for(i in 1:length(colnames(df_subset))){
 }
 
 # keep only columns in NewColName
-cols_to_delete <- which(!(colnames(df_subset) %in% convert_subset$NewColName))
+cols_to_delete <- which(!(colnames(df_subset) %in% c(convert_subset$NewColName)))
 if(length(cols_to_delete)>0){
   warn <- paste("deleting columns:",paste(colnames(df_subset)[cols_to_delete],collapse=", "))
   warning(warn)

@@ -2,6 +2,9 @@ library(readxl)
 # library(xlsx)
 library(stringr)
 
+# move to PRIMA folder
+setwd(file.path(baseDir,"XLS_cleaned"))
+
 # read in metadata
 prima.filename <- dir(".",pattern = glob2rx("PRIMAGRAFTS*xlsx"))
 if(length(prima.filename) != 1) stop("too few or too many PRIMAGRAFTS sheets in dropbox")
@@ -38,8 +41,9 @@ df[,which(meta$read_excel_type == "numeric")] <- as.data.frame(lapply(df[,which(
 
 ########## subset conversion guide for only admin table. #########
 
-# filter 'convert' for just the 'admin' table
-convert_admin <- convert[convert$NewTable=="admin",]
+# filter metadata for just the 'admin' table
+# convert_admin <- convert[convert$NewTable=="admin",] # TODO: delete if works.
+convert_admin <- meta[meta$NewTable=="admin",]
 
 if(!any(colnames(df) %in% c("MRN","Sample_ID"))){
   warning("Conditionally dropped MRN and Sample_ID from conversion because did not exist in PRIMAGRAFTS.")
@@ -65,17 +69,14 @@ df_admin$pdx_id <- stringr::str_sub(df$PDX_Name,1,10)
 # View(df[df$pdx_id %in% unique(df$pdx_id[duplicated(df$pdx_id)]),]) # view duplicates
 # View(df_admin[df_admin$pdx_id %in% unique(df_admin$pdx_id[duplicated(df_admin$pdx_id)]),])
 
-# manual fix for typo
-if(df_admin[df_admin$PDX_Name == "DFBL-20954-V1",]$Germline_Available!=1){
-  warning("typo in prima, so manually ran turned DFBL-20954-V1 Germline_Available to 1")
-  df_admin[df_admin$PDX_Name == "DFBL-20954-V1",]$Germline_Available <- 1
-}
 # drop PDX_Name
 df_admin$PDX_Name <- NULL
 
-# collapse duplicates -- method: remove 'Derivative' lines, then remove that column
-stopifnot(length(which(df_admin$Derivative == 1)) == length(unique(df_admin$pdx_id[duplicated(df_admin$pdx_id)]))) # confirm assumption
-df_admin <- df_admin[-which(df_admin$Derivative == 1),]
+# collapse duplicates -- method: remove original of 'Derivative' lines, then remove that column
+duplicated_ids <- unique(df_admin$pdx_id[duplicated(df_admin$pdx_id)])
+stopifnot(length(which(df_admin$Derivative == 1)) == length(duplicated_ids)) # confirm assumption
+duplicates_to_remove <- which(df_admin$pdx_id %in% duplicated_ids & df_admin$Derivative != 1)
+df_admin <- df_admin[-duplicates_to_remove,]
   # df_admin$pdx_id[which(is.na(df_admin$Derivative))] # show which lines are NA for Derivative -- why? I messaged Mark.
 # remove 'derivative' column
 df_admin$Derivative <- NULL
