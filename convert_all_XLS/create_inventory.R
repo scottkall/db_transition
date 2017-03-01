@@ -43,6 +43,7 @@ if(!all(names(df) == meta$Internal_Column_Header)) stop("ordering incorrect")
 
 # convert numeric columns in meta$read_excel_type to numeric
 df[,which(meta$read_excel_type == "numeric")] <- as.data.frame(lapply(df[,which(meta$read_excel_type == "numeric")],as.numeric))
+# note this causes minimal coercion warnings now because inventory isn't clean; will be fine later.
 
 # See conversion_guide.xls in PRoXe_app/db_transition/mark_mysql. Mark will fill out. Read and use this to convert data.
 
@@ -64,9 +65,10 @@ df_subset <- df[,cols_to_keep]
 
 ############# Clean up, subset df as necessary to produce subset ################
 
-warning("TODO: Clean up inv date into year-month-day format for SQL")
-TODO: clean up date into year-month-day format a la 
-https://dev.mysql.com/doc/refman/5.7/en/date-and-time-types.html
+# Convert excel integer date to SQL-compatible R date: 
+  # https://cran.r-project.org/doc/Rnews/Rnews_2004-1.pdf
+  # https://dev.mysql.com/doc/refman/5.7/en/date-and-time-types.html
+df_subset$Date <- as.Date("1899-12-30") + as.integer(df_subset$Date)
 
 # View(df[df$pdx_id %in% unique(df$pdx_id[duplicated(df$pdx_id)]),]) # view duplicates
 # View(df_subset[df_subset$pdx_id %in% unique(df_subset$pdx_id[duplicated(df_subset$pdx_id)]),])
