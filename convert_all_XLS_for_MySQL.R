@@ -1,7 +1,7 @@
 # parent script for converting all tables in PRIMAGRAFTS
 
 # set directory
-baseDir = "~/Dropbox/PRoXe/db_transition"
+baseDir = file.path("~","Dropbox","PRoXe","db_transition")
 setwd(baseDir)
 
 # read in conversion metadata
@@ -13,7 +13,7 @@ library(readxl)
 source(file.path(baseDir,"convert_all_XLS","create_admin.R"))
 source(file.path(baseDir,"convert_all_XLS","create_clinical.R"))
 source(file.path(baseDir,"convert_all_XLS","create_tumor.R"))
-# source(file.path(baseDir,"convert_all_XLS","create_inventory.R")) # TODO. comes from inventory.
+source(file.path(baseDir,"convert_all_XLS","create_inventory.R")) # TODO. comes from inventory.
 # source(file.path(baseDir,"convert_all_XLS","create_pdx.R")) # TODO. Comes from prima only.
 # source(file.path(baseDir,"convert_all_XLS","create_pdx_seq.R")) # TODO. Comes from sequencing_tracking and a little from prima.
 
