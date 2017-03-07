@@ -13,9 +13,11 @@ library(readxl)
 source(file.path(baseDir,"convert_all_XLS","create_admin.R"))
 source(file.path(baseDir,"convert_all_XLS","create_clinical.R"))
 source(file.path(baseDir,"convert_all_XLS","create_tumor.R"))
-source(file.path(baseDir,"convert_all_XLS","create_inventory.R")) # TODO. comes from inventory.
-# source(file.path(baseDir,"convert_all_XLS","create_pdx.R")) # TODO. Comes from prima only.
-# source(file.path(baseDir,"convert_all_XLS","create_pdx_seq.R")) # TODO. Comes from sequencing_tracking and a little from prima.
+source(file.path(baseDir,"convert_all_XLS","create_inventory.R"))
+source(file.path(baseDir,"convert_all_XLS","create_pdx.R"))
+# source(file.path(baseDir,"convert_all_XLS","create_pdx_seq.R")) 
+	# TODO. Comes from sequencing_tracking and a little from prima. 
+	# Needs to be cleaned still (as of 3/6/17). -- waiting.
 
 
 # TODO: after the second or third of these tables, generalize some actions into functions, depend on common variables, etc.
