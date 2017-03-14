@@ -32,3 +32,13 @@ FROM admin
 INNER JOIN inventory
 ON admin.pdx_id=inventory.pdx_id;
 # note fails if all columns are used because date format is wrong, old_name is duplicated, pdx_id is duplicated.
+
+SELECT *
+FROM admin
+INNER JOIN pdx_seq
+ON admin.pdx_id=pdx_seq.pdx_id;
+
+SELECT COUNT(*)
+FROM admin
+LEFT JOIN pdx_seq
+ON admin.pdx_id=pdx_seq.pdx_id;
