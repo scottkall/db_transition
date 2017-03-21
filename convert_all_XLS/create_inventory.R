@@ -182,7 +182,6 @@ if(sum(as.numeric(convert_subset$Unique))>0){
 convert_subset$NewTable = TABLE_NAME
 dbWriteTable(mydb,name="columns",value=convert_subset,row.names=FALSE,overwrite=FALSE,append=TRUE)
 
-
 dbDisconnect(mydb)
 
 ################### -- Appendix: RMySQL examples -- ##################

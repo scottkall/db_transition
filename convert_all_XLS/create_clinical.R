@@ -184,6 +184,11 @@ if(sum(as.numeric(convert_subset$Unique))>0){
   }
 }
 
+## -- create and add to columns table. -- ##
+convert_subset$NewTable = TABLE_NAME
+dbWriteTable(mydb,name="columns",value=convert_subset,row.names=FALSE,overwrite=FALSE,append=TRUE)
+
+
 ### CRITICAL TODO: SCRIPT SIMILARLY FOR FOREIGN KEY CONSTRAINTS ONLY AT END OF ALL TABLE READ-IN. ###
 # also consider adding checks and autoincrements
 # -- do this at end of parent script: convert_all_XLS_for_MySQL.R
