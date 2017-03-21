@@ -15,7 +15,7 @@ source(file.path(baseDir,"convert_all_XLS","create_clinical.R"))
 source(file.path(baseDir,"convert_all_XLS","create_tumor.R"))
 source(file.path(baseDir,"convert_all_XLS","create_inventory.R"))
 source(file.path(baseDir,"convert_all_XLS","create_pdx.R"))
-# source(file.path(baseDir,"convert_all_XLS","create_pdx_seq.R")) 
+source(file.path(baseDir,"convert_all_XLS","create_pdx_seq.R")) 
 	# TODO. Comes from sequencing_tracking and a little from prima. 
 	# Needs to be cleaned still (as of 3/6/17). -- waiting.
 

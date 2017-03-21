@@ -18,7 +18,7 @@ if(length(inv.filename) != 1) stop("too few or too many Inventory sheets in drop
 meta <- read_excel(paste0("./",inv.filename),sheet="Header_Data")
 
 df <- read_excel(paste0("./",inv.filename),sheet="Banked",
-  col_types =rep("text",nrow(meta)))
+  col_types=rep("text",nrow(meta)))
 
 # convert column in 'meta' to specify type as "blank", "numeric", "date" or "text" for read_excel()
   # original types: "character" "date" "factor" "logical" "numeric"  
@@ -177,6 +177,11 @@ if(sum(as.numeric(convert_subset$Unique))>0){
 ### CRITICAL TODO: SCRIPT SIMILARLY FOR FOREIGN KEY CONSTRAINTS ONLY AT END OF ALL TABLE READ-IN. ###
 # also consider adding checks and autoincrements
 # -- do this at end of parent script: convert_all_XLS_for_MySQL.R
+
+## -- create and add to columns table. -- ##
+convert_subset$NewTable = TABLE_NAME
+dbWriteTable(mydb,name="columns",value=convert_subset,row.names=FALSE,overwrite=FALSE,append=TRUE)
+
 
 dbDisconnect(mydb)
 

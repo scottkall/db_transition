@@ -5,6 +5,9 @@ library(stringr)
 # move to PRIMA folder
 setwd(file.path(baseDir,"XLS_cleaned"))
 
+# set relevant global variables
+TABLE_NAME = "admin"
+
 # read in metadata
 prima.filename <- dir(".",pattern = glob2rx("PRIMAGRAFTS*xlsx"))
 if(length(prima.filename) != 1) stop("too few or too many PRIMAGRAFTS sheets in dropbox")
@@ -43,7 +46,7 @@ df[,which(meta$read_excel_type == "numeric")] <- as.data.frame(lapply(df[,which(
 
 # filter metadata for just the 'admin' table
 # convert_admin <- convert[convert$NewTable=="admin",] # TODO: delete if works.
-convert_admin <- meta[meta$NewTable=="admin",]
+convert_admin <- meta[meta$NewTable==TABLE_NAME,]
 
 if(!any(colnames(df) %in% c("MRN","Sample_ID"))){
   warning("Conditionally dropped MRN and Sample_ID from conversion because did not exist in PRIMAGRAFTS.")
@@ -119,6 +122,11 @@ if(any(!is.na(convert_admin$Column_Order))) {
 # write.csv(df_admin,file = "output_admin.csv",quote = FALSE,na="",row.names=FALSE)
 
 
+########### -- Prep metadata for column metadata table -- ##############
+
+
+
+
 ################ -- Put 'admin' directly into MySQL -- ######################
 
 library(RMySQL)
@@ -139,8 +147,7 @@ names(field.types) <- convert_admin$NewColName
 field.types <- field.types[names(df_admin)]
 
 # Create table in MySQL
-table_name <- "admin"
-dbWriteTable(mydb,name=table_name,value=df_admin,field.types=field.types,row.names=FALSE,overwrite=TRUE)
+dbWriteTable(mydb,name=TABLE_NAME,value=df_admin,field.types=field.types,row.names=FALSE,overwrite=TRUE)
 # dbDisconnect(mydb)
 
 ### -- denote which is primary key, not null, etc. via dbSendQuery -- ##
@@ -149,7 +156,7 @@ dbWriteTable(mydb,name=table_name,value=df_admin,field.types=field.types,row.nam
 if(sum(convert_admin$PrimaryKey)>0){
   stopifnot(sum(convert_admin$PrimaryKey)==1)
   query <- paste0(
-    "ALTER TABLE ",table_name,
+    "ALTER TABLE ",TABLE_NAME,
     " ADD PRIMARY KEY (",convert_admin[convert_admin$PrimaryKey == 1,]$NewColName,");"
   )
   print(query)
@@ -162,7 +169,7 @@ if(sum(as.numeric(convert_admin$NotNull))>0){
   for (i in ind){
     row <- convert_admin[i,]
     query <- paste(
-      "ALTER TABLE",table_name,
+      "ALTER TABLE",TABLE_NAME,
       "MODIFY",row$NewColName,row$Datatype,"NOT NULL;"
     )
     print(query)
@@ -175,13 +182,17 @@ if(sum(as.numeric(convert_admin$Unique))>0){
   ind <- which(as.logical(convert_admin$Unique))
   for (i in ind){
     query <- paste0(
-      "ALTER TABLE ",table_name,
+      "ALTER TABLE ",TABLE_NAME,
       " ADD UNIQUE (",convert_admin[i,]$NewColName,");"
     )
     print(query)
     dbSendQuery(mydb,query)
   }
 }
+
+# create and add to columns table.
+dbWriteTable(mydb,name="columns",value=convert_admin,row.names=FALSE,overwrite=TRUE)
+
 
 ### CRITICAL TODO: SCRIPT SIMILARLY FOR FOREIGN KEY CONSTRAINTS ONLY AT END OF ALL TABLE READ-IN. ###
 # also consider adding checks and autoincrements
