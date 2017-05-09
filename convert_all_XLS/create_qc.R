@@ -6,7 +6,7 @@ library(stringr)
 setwd(file.path(baseDir,"XLS_cleaned"))
 
 # set relevant global variables
-TABLE_NAME = "tumor"
+TABLE_NAME = "qc"
 
 # read in metadata
 prima.filename <- dir(".",pattern = glob2rx("PRIMAGRAFTS*xlsx"))
@@ -64,13 +64,6 @@ df_subset <- df[,cols_to_keep]
 
 
 ############# Clean up, subset df as necessary to produce subset ################
-
-# Convert excel integer date to SQL-compatible R date: 
-  # https://cran.r-project.org/doc/Rnews/Rnews_2004-1.pdf
-  # https://dev.mysql.com/doc/refman/5.7/en/date-and-time-types.html
-suppressWarnings({df_subset$Sample_Date <- as.character(as.Date("1899-12-30") + as.integer(df_subset$Sample_Date))})
-df_subset$Sample_Date[is.na(df_subset$Sample_Date)] <- "missing"
-
 
 ## create unique 10-digit code per PDX
 df_subset$pdx_id <- stringr::str_sub(df$PDX_Name,1,10)
@@ -198,7 +191,6 @@ if(sum(as.numeric(convert_subset$Unique))>0){
 ## -- create and add to columns table. -- ##
 convert_subset$NewTable = TABLE_NAME
 dbWriteTable(mydb,name="columns",value=convert_subset,row.names=FALSE,overwrite=FALSE,append=TRUE)
-
 
 dbDisconnect(mydb)
 

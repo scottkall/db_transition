@@ -10,12 +10,14 @@ library(readxl)
 
 ########### -- Create each MySQL table in a separate script -- ###########
 # convert primagrafts, ... in this folder to MySQL objects.
-source(file.path(baseDir,"convert_all_XLS","create_admin.R"))
-source(file.path(baseDir,"convert_all_XLS","create_clinical.R"))
-source(file.path(baseDir,"convert_all_XLS","create_tumor.R"))
-source(file.path(baseDir,"convert_all_XLS","create_inventory.R"))
-source(file.path(baseDir,"convert_all_XLS","create_pdx.R"))
-source(file.path(baseDir,"convert_all_XLS","create_pdx_seq.R")) 
+
+read_in <- c("create_admin.R","create_clinical.R","create_tumor.R",
+	"create_inventory.R","create_pdx.R","create_qc.R","create_pdx_seq.R")
+for(f in read_in){
+	source(file.path(baseDir,"convert_all_XLS",f))
+}
+
+# Notes re: create_pdx_seq.R:
 	# TODO. Comes from sequencing_tracking and a little from prima. 
 	# Needs to be cleaned still (as of 3/6/17). -- waiting.
 

@@ -65,6 +65,11 @@ df_subset <- df[,cols_to_keep]
 
 ############# Clean up, subset df as necessary to produce subset ################
 
+# Convert excel integer date to SQL-compatible R date: 
+  # https://cran.r-project.org/doc/Rnews/Rnews_2004-1.pdf
+  # https://dev.mysql.com/doc/refman/5.7/en/date-and-time-types.html
+df_subset$Last_Clinical_Annotation <- as.Date("1899-12-30") + as.integer(df_subset$Last_Clinical_Annotation)
+
 ## create unique 10-digit code per PDX
 df_subset$pdx_id <- stringr::str_sub(df$PDX_Name,1,10)
 
