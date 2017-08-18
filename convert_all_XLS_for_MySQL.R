@@ -8,6 +8,9 @@ setwd(baseDir)
 library(readxl)
 # convert <- read_excel("mark_mysql/conversion_guide.xlsx") #TODO: delete if not used. 
 
+# set MySQL db password
+pw = "PRoXe123!"
+
 ########### -- Create each MySQL table in a separate script -- ###########
 # convert primagrafts, ... in this folder to MySQL objects.
 

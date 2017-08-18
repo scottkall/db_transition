@@ -114,7 +114,7 @@ if(any(!is.na(convert_subset$Column_Order))) {
 
 library(RMySQL)
 ## ... looks like this requires a working database to which to make a connection.
-mydb <- dbConnect(RMySQL::MySQL(), user="scott",password = "proxe123",dbname = "proxe_test",host="127.0.0.1")
+mydb <- dbConnect(RMySQL::MySQL(), user="scott",password = pw,dbname = "proxe_test",host="127.0.0.1")
 
 ## -- Create named field.types colnames vector from filtered 'convert_subset' df. -- ##
 
