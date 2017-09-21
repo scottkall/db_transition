@@ -3,7 +3,7 @@ library(readxl)
 library(stringr)
 
 # move to PRIMA folder
-setwd(file.path(baseDir,"XLS_cleaned"))
+setwd(dataDir)
 
 # set relevant global variables
 TABLE_NAME = "tumor"
@@ -223,3 +223,5 @@ if(F){
     dbDisconnect(con)
   }
 }
+
+setwd(baseDir)

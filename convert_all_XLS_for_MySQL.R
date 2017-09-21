@@ -1,8 +1,9 @@
 # parent script for converting all tables in PRIMAGRAFTS
 
-# set directory
+# set directories
 baseDir = file.path("~","Dropbox","PRoXe","db_transition")
 setwd(baseDir)
+dataDir = file.path("~","Dropbox","PRoXe","data_outside_app")
 
 # read in conversion metadata
 library(readxl)
@@ -17,6 +18,7 @@ source(file.path(baseDir,"convert_all_XLS","login_credentials.R"))
 read_in <- c("create_admin.R","create_clinical.R","create_tumor.R",
 	"create_inventory.R","create_pdx.R","create_qc.R","create_pdx_seq.R")
 for(f in read_in){
+	cat(paste0("\n--- Running: ",f," ---\n"))
 	source(file.path(baseDir,"convert_all_XLS",f))
 }
 
