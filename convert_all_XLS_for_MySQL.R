@@ -12,6 +12,18 @@ library(readxl)
 # set MySQL login credentials
 source(file.path(baseDir,"convert_all_XLS","login_credentials.R"))
 
+########### -- Delete tables from database -- #############
+library(RMySQL)
+mydb <- dbConnect(RMySQL::MySQL(), user=sql_user,password = sql_password,dbname = sql_dbname,host="127.0.0.1")
+dbTables <- dbListTables(mydb)
+dbGetQuery(mydb,"SET foreign_key_checks = 0;")
+for(t in dbTables){ 
+  dbRemoveTable(mydb,t)
+}
+dbGetQuery(mydb,"SET foreign_key_checks = 1;")
+dbDisconnect(mydb)
+
+
 ########### -- Create each MySQL table in a separate script -- ###########
 # convert primagrafts, ... in this folder to MySQL objects.
 
