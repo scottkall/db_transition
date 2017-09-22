@@ -25,14 +25,16 @@ for(f in read_in){
 # Notes re: create_pdx_seq.R:
 	# TODO. Comes from sequencing_tracking and a little from prima. 
 	# Needs to be cleaned still (as of 3/6/17). -- waiting.
-
+	# TODO: check if this is still a need.
 
 # TODO: after the second or third of these tables, generalize some actions into functions, depend on common variables, etc.
   # For instance, perhaps read in all precursor tables in one script before starting.
 
-
 ### CRITICAL TODO: SCRIPT SIMILARLY FOR FOREIGN KEY CONSTRAINTS ONLY AT END OF ALL TABLE READ-IN. ###
 # also consider adding checks and autoincrements
+script = 'foreign_keys.R'
+cat(paste0("\n--- Running: ",script," ---\n"))
+source(file.path(baseDir,"convert_all_XLS",script))
 
 
 ### Answered: Determine where my MySQL database is stored and if easy to send to Mark.
