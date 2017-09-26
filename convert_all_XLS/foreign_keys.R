@@ -72,7 +72,7 @@ if(!all(c(to_modify$NewTable,to_modify$If_ForeignKey_Table) %in% dbTables)) {
 }
 
 # Turn off foreign key checks
-dbGetQuery(mydb,"SET foreign_key_checks = 0;")
+if(!FK_CHECK_FAIL) dbGetQuery(mydb,"SET foreign_key_checks = 0;")
 
 # add constraints
 # alter table inventory add foreign key (pdx_id) references admin (pdx_id);

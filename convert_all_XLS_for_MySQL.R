@@ -9,6 +9,9 @@ dataDir = file.path("~","Dropbox","PRoXe","data_outside_app")
 library(readxl)
 # convert <- read_excel("mark_mysql/conversion_guide.xlsx") #TODO: delete if not used. 
 
+# Toggle whether foreign key check failures cause error
+FK_CHECK_FAIL=FALSE
+
 # set MySQL login credentials
 source(file.path(baseDir,"convert_all_XLS","login_credentials.R"))
 
@@ -16,7 +19,7 @@ source(file.path(baseDir,"convert_all_XLS","login_credentials.R"))
 library(RMySQL)
 mydb <- dbConnect(RMySQL::MySQL(), user=sql_user,password = sql_password,dbname = sql_dbname,host="127.0.0.1")
 dbTables <- dbListTables(mydb)
-dbGetQuery(mydb,"SET foreign_key_checks = 0;")
+if(!FK_CHECK_FAIL) dbGetQuery(mydb,"SET foreign_key_checks = 0;")
 for(t in dbTables){ 
   dbRemoveTable(mydb,t)
 }
