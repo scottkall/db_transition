@@ -1,9 +1,19 @@
 # parent script for converting all tables in PRIMAGRAFTS
 
+# find PRoXe directory
+who <- system("whoami",intern=TRUE)
+if(who %in% c("scott","spk22","mym97")){
+	proxDir <- file.path("~","Dropbox","PRoXe")
+} else if (who == "Mark"){
+	proxDir <- file.path("C:","Users","Mark","Dropbox (Partners Healthcare)","PRoXe")
+} else {
+	stop(paste("User",who,"not recognized."))
+}
+
 # set directories
-baseDir = file.path("~","Dropbox","PRoXe","db_transition")
+baseDir = file.path(proxDir,"db_transition")
 setwd(baseDir)
-dataDir = file.path("~","Dropbox","PRoXe","data_outside_app")
+dataDir = file.path(proxDir,"data_outside_app")
 
 # read in conversion metadata
 library(readxl)
@@ -31,7 +41,8 @@ dbDisconnect(mydb)
 # convert primagrafts, ... in this folder to MySQL objects.
 
 read_in <- c("create_admin.R","create_clinical.R","create_tumor.R",
-	"create_inventory.R","create_pdx.R","create_qc.R","create_pdx_seq.R")
+	"create_inventory.R","create_pdx.R","create_qc.R","create_pdx_seq.R",
+	"create_pdx_dna_variants.R")
 for(f in read_in){
 	cat(paste0("\n--- Running: ",f," ---\n"))
 	source(file.path(baseDir,"convert_all_XLS",f))
